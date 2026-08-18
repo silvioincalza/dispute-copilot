@@ -34,7 +34,7 @@ That's it. A colleague can resolve a dispute end-to-end.
 │  │ :3000    │    │  :8080                   │    │                  │  │
 │  └──────────┘    │                          │    └──────────────────┘  │
 │                  │  ┌─────────────────────┐ │                          │
-│  ┌──────────┐    │  │  Spring AI 1.0      │ │    ┌──────────────────┐  │
+│  ┌──────────┐    │  │  Spring AI 2.0      │ │    ┌──────────────────┐  │
 │  │ MCP      │───▶│  │  - ChatClient       │ │───▶│  PostgreSQL      │  │
 │  │ Server   │    │  │  - VectorStore(RAG) │ │    │  + pgvector      │  │
 │  │ :8002    │    │  │  - Tool Calling     │ │    │  :5432           │  │
