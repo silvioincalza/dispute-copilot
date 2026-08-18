@@ -2,7 +2,7 @@ package com.disputecopilot.config;
 
 import io.micrometer.common.KeyValue;
 import io.micrometer.observation.ObservationRegistry;
-import org.springframework.boot.actuate.autoconfigure.observation.ObservationRegistryCustomizer;
+import org.springframework.boot.micrometer.observation.autoconfigure.ObservationRegistryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
