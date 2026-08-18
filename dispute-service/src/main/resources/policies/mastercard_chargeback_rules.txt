@@ -1,0 +1,4 @@
+Mastercard Chargeback Rules
+Mastercard reason code 4853 applies to cardholder disputes involving goods or services not as described. Evidence should summarize the cardholder complaint and merchant response.
+Mastercard reason code 4863 applies to cardholder disputes for cardholder does not recognize potential fraud. Investigators should review authentication, merchant location, device fingerprint, and prior spending patterns.
+When strong customer authentication was successfully completed, analysts must document the 3DS version, challenge outcome, and any exemption claims before recommending a write-off.

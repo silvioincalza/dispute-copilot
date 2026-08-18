@@ -1,0 +1,5 @@
+SCA and 3DS Review Policy
+When a transaction is disputed, analysts must review SCA status and 3DS version before drafting a chargeback. AUTHENTICATED transactions with 3DS 2.x may shift liability depending on the scheme reason code and merchant category.
+NOT_AUTHENTICATED transactions require additional fraud indicators, issuer notes, and device telemetry review.
+EXEMPTED transactions require the exemption rationale, transaction risk score, and merchant acquirer evidence.
+Every agent response must cite the specific policy file used for recommendations.

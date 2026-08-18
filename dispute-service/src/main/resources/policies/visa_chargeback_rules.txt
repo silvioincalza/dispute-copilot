@@ -1,0 +1,5 @@
+Visa Chargeback Rules
+Visa reason code 13.1 covers merchandise or services not received. Supporting evidence should include the expected delivery date, customer communication, and proof that the merchant failed to provide the service.
+Visa reason code 13.2 covers cancelled recurring transactions. Evidence should include the cancellation timestamp, prior billing history, and merchant cancellation confirmation.
+Visa reason code 13.3 covers not as described or defective merchandise. Analysts should document why the delivered goods differed from the offer and include return or remediation attempts.
+All chargeback claims should record the source system, customer identifier, transaction identifier, and the evidence checklist used.

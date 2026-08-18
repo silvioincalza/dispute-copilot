@@ -1,0 +1,38 @@
+# Java build artifacts
+dispute-service/target/
+dispute-service/.mvn/
+*.class
+*.jar
+*.war
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.env
+
+# Node.js
+ui/node_modules/
+ui/build/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Environment files
+.env
+.env.local
+*.env
+
+# Docker volumes
+pgdata/
+
+# Eval reports
+eval-report.json
+
+# Logs
+*.log
