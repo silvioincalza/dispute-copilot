@@ -1,0 +1,129 @@
+version: "3.9"
+
+services:
+  # ─────────────────────────────────────────────────────────────
+  # PostgreSQL + pgvector
+  # ─────────────────────────────────────────────────────────────
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: disputedb
+      POSTGRES_USER: disputeuser
+      POSTGRES_PASSWORD: disputepass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U disputeuser -d disputedb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────────────────────
+  # OpenTelemetry Collector
+  # ─────────────────────────────────────────────────────────────
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "8888:8888"   # Prometheus metrics
+    depends_on:
+      - jaeger
+
+  # ─────────────────────────────────────────────────────────────
+  # Jaeger (distributed tracing UI)
+  # ─────────────────────────────────────────────────────────────
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"  # Jaeger UI
+      - "14250:14250"  # gRPC
+
+  # ─────────────────────────────────────────────────────────────
+  # Spring Boot Core Service
+  # ─────────────────────────────────────────────────────────────
+  dispute-service:
+    build:
+      context: ./dispute-service
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/disputedb
+      DB_USER: disputeuser
+      DB_PASS: disputepass
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OTEL_ENDPOINT: http://otel-collector:4317
+      DOCUMENT_INTAKE_URL: http://document-intake:8001
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ─────────────────────────────────────────────────────────────
+  # Python Document Intake Service
+  # ─────────────────────────────────────────────────────────────
+  document-intake:
+    build:
+      context: ./document-intake
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
+      OTEL_ENDPOINT: http://otel-collector:4317
+    depends_on:
+      - otel-collector
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8001/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────────────────────
+  # MCP Server
+  # ─────────────────────────────────────────────────────────────
+  mcp-server:
+    build:
+      context: ./mcp-server
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      DISPUTE_SERVICE_URL: http://dispute-service:8080
+    depends_on:
+      dispute-service:
+        condition: service_healthy
+
+  # ─────────────────────────────────────────────────────────────
+  # React UI
+  # ─────────────────────────────────────────────────────────────
+  ui:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+      # REACT_APP_* vars must be baked in at build time (CRA limitation)
+      # The nginx proxy forwards /api/ to dispute-service, so no explicit
+      # API URL is needed in the bundle when running via docker compose.
+    ports:
+      - "3000:80"
+    depends_on:
+      dispute-service:
+        condition: service_healthy
+
+volumes:
+  pgdata:
